@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
+    <script src="/ton.js"></script>
+    <title>Document</title>
+</head>
+
+<body>
+    <div style="height: 97vh; width: 97vw;" >
+        <div id="chartContainer" style="height: 100%; width: 100%;"></div>
+    </div>
+    <script type="text/javascript">
+        render = async () => {
+            let chart = canvasjs_tpl(chartContainer, "TotalPortValue")
+            const report = getQueryParam('report');
+            console.log(report)
+            const dataPoints = await fetchCSVData(`/datasource/Report_${report}.csv`, 'DTrade')
+            const series_p_1 = {
+                axisYIndex: 0,
+                type: 'line',
+                color: 'blue',
+                axisYType: 'secondary',
+                xValueFormatString: 'YYYY-MM-DD',
+                dataPoints: dataPoints.map(data => ({ x: data.DTrade, y: data.TotalPortValue })),
+                logarithmic: true,
+                title: 'TotalPortValue',
+                minimum: 10000000,
+                maximum: 1000000000
+            }
+            const series_p_2 = {
+                axisYIndex: 1,
+                type: 'line',
+                color: 'darkred',
+                axisYType: 'secondary',
+                yLabelValueFormatString: "#0%",
+                yValueFormatString: "#0.00%",
+                dataPoints: dataPoints.map(data => ({ x: data.DTrade, y: data.DD })),
+                logarithmic: false,
+                title: 'DD',
+                minimum: -1,
+            }
+            const series_s_1 = {
+                axisYIndex: 2,
+                color: 'green',
+                type: 'line',
+                axisYType: 'secondary',
+                maximum: 5000,
+                
+                dataPoints: dataPoints.map(data => ({ x: data.DTrade, y: data.FT })),
+                logarithmic: false,
+                title: 'FT'
+            }
+
+            canvasjs_addSeries(chart, series_p_1);
+            canvasjs_addSeries(chart, series_p_2);
+            canvasjs_addSeries(chart, series_s_1);
+            chart.render();
+        }
+        render();
+    </script>
+</body>
+
+</html>
